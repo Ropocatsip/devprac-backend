@@ -1,0 +1,1532 @@
+{
+	"info": {
+		"_postman_id": "f659bea2-6945-40e6-b2df-15439daa9229",
+		"name": "CU Restaurant",
+		"description": "Backend API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39305514"
+	},
+	"item": [
+		{
+			"name": "CU Restaurant Main",
+			"item": [
+				{
+					"name": "1 USER Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\", pm.response.json().token)\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"const new_register = response.data?.userId;\r",
+									"const new_email = response.data?.email;\r",
+									"\r",
+									"pm.globals.set(\"global_userCU_id\", new_register);\r",
+									"pm.globals.set(\"global_userEmail_id\", new_email);\r",
+									"\r",
+									"\r",
+									"// 1 USER Register\r",
+									"pm.execution.setNextRequest(\"2A USER Login with no verified\");\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{$randomFullName}}\",\n    \"tel\": \"0891111111\",\n    \"email\": \"kritsaho+{{$randomNoun}}{{$randomNoun}}@gmail.com\",\n    \"password\": \"12345678\",\n    \"role\": \"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/register",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2A USER Login with no verified",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401 - Unverified user\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"// Optional: verify the exact error message\r",
+									"pm.test(\"Error message is 'Please verify your email'\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    pm.expect(res.error).to.eql(\"Please verify your email\");\r",
+									"});\r",
+									"\r",
+									"// Only try to save token if response is 200\r",
+									"if (pm.response.code === 200) {\r",
+									"    pm.environment.set(\"TOKEN\", pm.response.json().token);\r",
+									"}\r",
+									"\r",
+									"pm.execution.setNextRequest(\"2B USER Verify OTP\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{global_userEmail_id}}\",\n  \"password\": \"12345678\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/login",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2B USER Verify OTP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\", pm.response.json().token)\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// 2B USER Verify OTP\r",
+									"pm.execution.setNextRequest(\"2C USER Login with verified\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"{{global_userCU_id}}\",\n    \"otp\": \"9999\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/verifyOTP",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"verifyOTP"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2C USER Login with verified",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\", pm.response.json().token)\r",
+									"\r",
+									"pm.environment.set(\"TOKEN\", pm.response.json().token)\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"}); \r",
+									"\r",
+									"// 2C USER Login with verified\r",
+									"pm.execution.setNextRequest(\"3 USER Get All Restaurants\");\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{global_userEmail_id}}\",\n  \"password\": \"12345678\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/login",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3 USER Get All Restaurants",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Total Restaurants\", function () {\r",
+									"   pm.expect(pm.response.json().count).to.equal(2);\r",
+									"});\r",
+									"\r",
+									"// 3 USER Get All Restaurants\r",
+									"pm.execution.setNextRequest(\"4A USER Add Booking Success 1\");\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants"
+							]
+						},
+						"description": "Fetch all hospitals from database."
+					},
+					"response": []
+				},
+				{
+					"name": "4A USER Add Booking Success 1",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"const response = pm.response.json(); \r",
+									"const newappt1 = response.data._id;\r",
+									"pm.globals.set(\"global_appt1_ID\", newappt1);\r",
+									"\r",
+									"// 4A USER Add Booking Success 1\r",
+									"pm.execution.setNextRequest(\"4B USER Add Booking  NOT Success - No Seat\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"apptDate\": \"2025-04-05T04:00:00.000Z\",\n    \"user\": \"{{global_userEmail_id}}\",\n    \"seat\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/67f73af933dcc1f1007f6d63/appointments",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"67f73af933dcc1f1007f6d63",
+								"appointments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4B USER Add Booking  NOT Success - No Seat",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 500 - Internal Server Error\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message is 'Cannot create Appointment'\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    pm.expect(res.message).to.eql(\"Cannot create Appointment\");\r",
+									"});\r",
+									"\r",
+									"// 4B USER Add Booking NOT Success - No Seat\r",
+									"pm.execution.setNextRequest(\"4C USER Add Booking Success 2\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"apptDate\": \"2025-04-05T04:00:00.000Z\",\n    \"user\": \"{{global_userEmail_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/67f73af933dcc1f1007f6d63/appointments",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"67f73af933dcc1f1007f6d63",
+								"appointments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4C USER Add Booking Success 2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json(); \r",
+									"const newappt2 = response.data._id;\r",
+									"pm.globals.set(\"global_appt2_ID\", newappt2);\r",
+									"\r",
+									"// 4C USER Add Booking Success 2\r",
+									"pm.execution.setNextRequest(\"4D USER Add Booking Success 3\");\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"apptDate\": \"2025-04-05T04:00:00.000Z\",\n    \"user\": \"{{global_userEmail_id}}\",\n    \"seat\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/67f73af933dcc1f1007f6d63/appointments",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"67f73af933dcc1f1007f6d63",
+								"appointments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4D USER Add Booking Success 3",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"const response = pm.response.json(); \r",
+									"const newappt3 = response.data._id;\r",
+									"pm.globals.set(\"global_appt3_ID\", newappt3);\r",
+									"\r",
+									"// 4D USER Add Booking Success 3\r",
+									"pm.execution.setNextRequest(\"4E USER Add Booking NOT Success >3\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"apptDate\": \"2025-04-05T04:00:00.000Z\",\n    \"user\": \"{{global_userEmail_id}}\",\n    \"seat\": 2\n}\n\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/67f73af933dcc1f1007f6d63/appointments",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"67f73af933dcc1f1007f6d63",
+								"appointments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4E USER Add Booking NOT Success >3",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400 - Internal Server Error\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message is correct for >3 bookings\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    const expectedId = pm.globals.get(\"global_userCU_id\");\r",
+									"    pm.expect(res.message).to.eql(`The user with ID ${expectedId} has already made 3 appointments`);\r",
+									"});\r",
+									"\r",
+									"// 4E USER Add Booking NOT Success >3\r",
+									"pm.execution.setNextRequest(\"5A USER Get Own ONE Booking 1\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"apptDate\": \"2025-04-05T04:00:00.000Z\",\n    \"user\": \"{{global_userEmail_id}}\",\n    \"seat\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/67f73af933dcc1f1007f6d63/appointments",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"67f73af933dcc1f1007f6d63",
+								"appointments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5A USER Get Own ONE Booking 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// 5A USER Get Own ONE Booking 1\r",
+									"pm.execution.setNextRequest(\"5B USER Get Own Booking ALL=3\");\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/appointments/:_id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "{{global_appt1_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5B USER Get Own Booking ALL=3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"A number of Booking\", function () {\r",
+									"   pm.expect(pm.response.json().count).to.equal(3);\r",
+									"});\r",
+									"\r",
+									"// 5B USER Get Own Booking ALL=3\r",
+									"pm.execution.setNextRequest(\"6A USER Update Booking 1 Add SEAT\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/appointments/",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6A USER Update Booking 1 Add SEAT",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Seat is 3\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    pm.expect(res.data.seat).to.eql(3);\r",
+									"}); \r",
+									"\r",
+									"// 6A USER Update Booking 1 Add SEAT\r",
+									"pm.execution.setNextRequest(\"6B USER Update Booking 2 Edit NOTE\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"apptDate\": \"2025-02-20T04:00:00.000Z\",\n    \"restaurant\": \"67f73af933dcc1f1007f6d63\",\n    \"seat\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/appointments/:_id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "{{global_appt1_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6B USER Update Booking 2 Edit NOTE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Note = no spicy food\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    pm.expect(res.data.note).to.eql(\"no spicy food\");\r",
+									"});\r",
+									"\r",
+									"// 6B USER Update Booking 2 Edit NOTE\r",
+									"pm.execution.setNextRequest(\"6C USER Update Booking 3 Change Date\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"apptDate\": \"2025-02-20T04:00:00.000Z\",\n    \"restaurant\": \"67f73af933dcc1f1007f6d63\",\n    \"note\" : \"no spicy food\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/appointments/:_id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "{{global_appt2_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6C USER Update Booking 3 Change Date",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect appDate = '2025-05-01T04:00:00.000Z'\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    pm.expect(res.data.apptDate).to.eql(\"2025-05-01T04:00:00.000Z\");  // use this if appDate is directly inside data\r",
+									"});\r",
+									"\r",
+									"// 6C USER Update Booking 3 Change Date\r",
+									"pm.execution.setNextRequest(\"7 USER Delete Booking 1\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"apptDate\": \"2025-05-01T04:00:00.000Z\",\n    \"restaurant\": \"67f73af933dcc1f1007f6d63\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/appointments/:_id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "{{global_appt3_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7 USER Delete Booking 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// 7 USER Delete Booking 1\r",
+									"pm.execution.setNextRequest(\"8A USER Logout\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/api/v1/appointments/:_id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "{{global_appt1_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8A USER Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\", null)\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// 8A USER Logout\r",
+									"pm.execution.setNextRequest(\"8B USER Get Me\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YTcwOGQxZWQzYjhkOGMwMmI3MmZhNSIsImlhdCI6MTczOTAwMjEyMSwiZXhwIjoxNzQxNTk0MTIxfQ.1IikYKW9sTjAvKA4YI5uMENtaC570uMW_8jt1iys64o",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/logout",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8B USER Get Me",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Not authorized to access this route\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    pm.expect(res.error).to.be.eql(\"Not authorized to access this route\")\r",
+									"});\r",
+									"\r",
+									"// 8B USER Get Me\r",
+									"pm.execution.setNextRequest(\"9 ADMIN Login\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YTcwOGQxZWQzYjhkOGMwMmI3MmZhNSIsImlhdCI6MTczOTAwMjEyMSwiZXhwIjoxNzQxNTk0MTIxfQ.1IikYKW9sTjAvKA4YI5uMENtaC570uMW_8jt1iys64o",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/me",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9 ADMIN Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\", pm.response.json().token)\r",
+									"\r",
+									"pm.environment.set(\"TOKEN\", pm.response.json().token)\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// 9 ADMIN Login\r",
+									"pm.execution.setNextRequest(\"10 ADMIN view Booking 2\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"6672030421@student.chula.ac.th\",\n  \"password\": \"12345678\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/login",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "10 ADMIN view Booking 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// 10 ADMIN view Booking 2\r",
+									"pm.execution.setNextRequest(\"11 ADMIN Update Booking 3 Edit Note\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/appointments/:_id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "{{global_appt2_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "11 ADMIN Update Booking 3 Edit Note",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Note = No vegan food as request\", function () {\r",
+									"    const res = pm.response.json();\r",
+									"    pm.expect(res.data.note).to.eql(\"no vegan food as request\");\r",
+									"});\r",
+									"\r",
+									"// 11 ADMIN Update Booking 3 Edit Note\r",
+									"pm.execution.setNextRequest(\"12 ADMIN Delete Booking 2\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"restaurant\": \"67f73af933dcc1f1007f6d63\",\n    \"note\" : \"no vegan food as request\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/appointments/:_id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "{{global_appt2_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "12 ADMIN Delete Booking 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// 12 ADMIN Delete Booking 2\r",
+									"pm.execution.setNextRequest(null); // End of collection"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/api/v1/appointments/:_id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								":_id"
+							],
+							"variable": [
+								{
+									"key": "_id",
+									"value": "{{global_appt2_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "1\\. The system shall allow a user to register by specifying the name, telephone number, email, and  \npassword.  \n2\\. After registration, the user becomes a registered user, and the system shall allow the user to log in to  \nuse the system by specifying the email and password. The system shall allow a registered user to log  \nout.  \n3\\. After login, the system shall allow the registered user to reserve up to 3 tables by specifying the date  \nand the preferred restaurant. The restaurant list is also provided to the user. A restaurant information  \nincludes the name, address, telephone number, and open-close time.  \n4\\. The system shall allow the registered user to view his/her restaurant reservation.  \n5\\. The system shall allow the registered user to edit his/her restaurant reservation.  \n6\\. The system shall allow the registered user to delete his/her restaurant reservation.  \n7\\. The system shall allow the admin to view any restaurant reservation.  \n8\\. The system shall allow the admin to edit any restaurant reservation.  \n9\\. The system shall allow the admin to delete any restaurant reservation.\n\n**Further Requirements and CRUDE**\n\n10\\. The system shall allow the registered user to specify a number of seat in each table booking.\n\n11\\. The system shall allow the registered user to search restaurants by types of foods, location.\n\n12\\. The system shall allow the registered user to add note (free texts) for special request e.g., need private tables.\n\n13\\. The system shall allow the admin to edit restaurants information.\n\n**External API**\n\n14\\. The system shall verify user email by sending code to the email for two-factor authentication.\n\n15\\. The system shall send the notification to the registered user before the booking 1 day by email.\n\n**Front End**\n\n16\\. Front-end = admin page (view/edit/delete any restaurant reservation)"
+		}
+	]
+}
