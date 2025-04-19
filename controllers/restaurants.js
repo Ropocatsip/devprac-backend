@@ -61,6 +61,19 @@ exports.getRestaurants = async (req, res, next) => {
     }
 };
 
+exports.getRestaurant = async (req, res, next) => {
+    try {
+        const restaurant = await Restaurant.findById(req.params.id);
+        if (!restaurant) {
+            return res.status(400).json({success: false});
+        }
+        res.status(200).json({success: true, data: restaurant});
+    } catch (error) {
+        console.log(error.message);
+        res.status(400).json({success: false});
+    }
+};
+
 exports.updateRestaurant = async (req, res, next) => {
     try {
         const restaurant = await Restaurant.findByIdAndUpdate(req.params.id, req.body, {
@@ -75,5 +88,32 @@ exports.updateRestaurant = async (req, res, next) => {
         res.status(200).json({success: true, data: restaurant});
     } catch (error) {
         res.status(400).json({success: false,  message: `Cannot update restaurant.`});
+    }
+};
+
+exports.createRestaurant = async (req, res, next) => {
+    try {
+        const restaurant = await Restaurant.create(req.body);
+        res.status(201).json({success: true, data: restaurant});
+    } catch (error) {
+        console.log(error.message);
+        res.status(400).json({success: false});
+    }
+};
+
+exports.deleteRestaurant = async (req, res, next) => {
+    try {
+        const restaurant = await Restaurant.findById(req.params.id);
+        
+        if(!restaurant) {
+            return res.status(404).json({success: false, message: `Restaurant not found with id of ${req.params.id}`});
+        }
+        await Appointment.deleteMany({hospital: req.params.id});
+        await Restaurant.deleteOne({_id: req.params.id});
+
+        res.status(200).json({success: true, data: {}});
+    } catch (error) {
+        console.log(error.message);
+        res.status(400).json({success: false});
     }
 };
