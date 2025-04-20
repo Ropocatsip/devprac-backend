@@ -17,7 +17,7 @@ const UserOTPSchema=new mongoose.Schema({
     },
     expiredAt: {
         type: Date,
-        default: Date.now() + (10 * 60 * 1000)
+        default: () => Date.now() + (10 * 60 * 1000)
     }
 });
 

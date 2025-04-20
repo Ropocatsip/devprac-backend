@@ -11,7 +11,63 @@
 			"name": "CU Restaurant Main",
 			"item": [
 				{
-					"name": "1 USER Register",
+					"name": "1A USER Register Valid Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\", pm.response.json().token)\r",
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.execution.setNextRequest(\"1B USER Register\");\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{$randomFullName}}\",\n    \"tel\": \"0891111111\",\n    \"email\": \"kritsaho+{{$randomNoun}}{{$randomNoun}}@gmail.com@gmail.com\",\n    \"password\": \"12345678\",\n    \"role\": \"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/register",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1B USER Register",
 					"event": [
 						{
 							"listen": "test",
@@ -54,7 +110,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{$randomFullName}}\",\n    \"tel\": \"0891111111\",\n    \"email\": \"kritsaho+{{$randomNoun}}{{$randomNoun}}@gmail.com\",\n    \"password\": \"12345678\",\n    \"role\": \"user\"\n}",
+							"raw": "{\n    \"name\": \"{{$randomFullName}}\",\n    \"tel\": \"0891111111\",\n    \"email\": \"kritsaho+{{$randomNoun}}{{$randomNoun}}{{$randomNoun}}@gmail.com\",\n    \"password\": \"12345678\",\n    \"role\": \"user\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
