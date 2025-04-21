@@ -148,8 +148,8 @@ const sentTokenResponse = (user, statusCode, res) => {
 
 const twoAuthentication = async (user, statusCode, res) => {
   try {    
-     const otp = '9999';
-    // const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    //  const otp = '9999';
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
     // create otp
     await UserOTP.create({
       user: user._id,
